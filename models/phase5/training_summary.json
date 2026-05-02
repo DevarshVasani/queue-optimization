@@ -1,0 +1,21 @@
+[
+  {
+    "experiment": "full",
+    "best_model_path": "models/phase5/full/best_model",
+    "best_vecnormalize_path": "models/phase5/full/best_vecnormalize.pkl",
+    "best_model_stats_path": "models/phase5/full/best_model.pkl",
+    "last_model_path": "models/phase5/full/last_model",
+    "vecnormalize_path": "models/phase5/full/vecnormalize.pkl",
+    "reward_config": {
+      "success_reward": 1.0,
+      "fail_penalty": -5.0,
+      "frag_weight": 50.0,
+      "balance_weight": 0.05,
+      "util_weight": 0.5,
+      "slo_penalty": 0.0
+    },
+    "device": "cuda",
+    "best_gar": 0.7078262378675276,
+    "best_step": 50000
+  }
+]

@@ -1,0 +1,99 @@
+{
+  "node_csv": "/home/devarsh/Work/queue-optimization/clusterdata/cluster-trace-gpu-v2023/csv/openb_node_list_gpu_node.csv",
+  "pod_csv": "/home/devarsh/Work/queue-optimization/clusterdata/cluster-trace-gpu-v2023/csv/openb_pod_list_default.csv",
+  "num_nodes": 1213,
+  "num_pods": 8152,
+  "policies": {
+    "random": {
+      "policy": "random",
+      "total_pods": 8152,
+      "scheduled_pods": 8152,
+      "failed_pods": 0,
+      "total_gpu_milli_capacity": 6212000,
+      "allocated_gpu_milli_sum": 6086800,
+      "gpu_allocation_ratio": 0.9798454603992273,
+      "unallocated_gpu_fraction": 0.020154539600772736,
+      "avg_wait_time": 0.0,
+      "avg_jct": 25839.365063788027,
+      "makespan": 12902960,
+      "cluster_fragmentation_score": 0.0016505335452009781
+    },
+    "best_fit": {
+      "policy": "best_fit",
+      "total_pods": 8152,
+      "scheduled_pods": 8152,
+      "failed_pods": 0,
+      "total_gpu_milli_capacity": 6212000,
+      "allocated_gpu_milli_sum": 6086800,
+      "gpu_allocation_ratio": 0.9798454603992273,
+      "unallocated_gpu_fraction": 0.020154539600772736,
+      "avg_wait_time": 0.0,
+      "avg_jct": 25839.365063788027,
+      "makespan": 12902960,
+      "cluster_fragmentation_score": 0.0016505335452009781
+    },
+    "dot_product": {
+      "policy": "dot_product",
+      "total_pods": 8152,
+      "scheduled_pods": 8150,
+      "failed_pods": 2,
+      "total_gpu_milli_capacity": 6212000,
+      "allocated_gpu_milli_sum": 6070800,
+      "gpu_allocation_ratio": 0.977269800386349,
+      "unallocated_gpu_fraction": 0.02273019961365097,
+      "avg_wait_time": 0.0,
+      "avg_jct": 25844.72319018405,
+      "makespan": 12902960,
+      "cluster_fragmentation_score": 0.0016505335452009781
+    },
+    "gpu_packing": {
+      "policy": "gpu_packing",
+      "total_pods": 8152,
+      "scheduled_pods": 8152,
+      "failed_pods": 0,
+      "total_gpu_milli_capacity": 6212000,
+      "allocated_gpu_milli_sum": 6086800,
+      "gpu_allocation_ratio": 0.9798454603992273,
+      "unallocated_gpu_fraction": 0.020154539600772736,
+      "avg_wait_time": 0.0,
+      "avg_jct": 25839.365063788027,
+      "makespan": 12902960,
+      "cluster_fragmentation_score": 0.0016505335452009781
+    },
+    "gpu_clustering": {
+      "policy": "gpu_clustering",
+      "total_pods": 8152,
+      "scheduled_pods": 8152,
+      "failed_pods": 0,
+      "total_gpu_milli_capacity": 6212000,
+      "allocated_gpu_milli_sum": 6086800,
+      "gpu_allocation_ratio": 0.9798454603992273,
+      "unallocated_gpu_fraction": 0.020154539600772736,
+      "avg_wait_time": 0.0,
+      "avg_jct": 25839.365063788027,
+      "makespan": 12902960,
+      "cluster_fragmentation_score": 0.0016505335452009781
+    },
+    "fgd": {
+      "policy": "fgd",
+      "total_pods": 8152,
+      "scheduled_pods": 8152,
+      "failed_pods": 0,
+      "total_gpu_milli_capacity": 6212000,
+      "allocated_gpu_milli_sum": 6086800,
+      "gpu_allocation_ratio": 0.9798454603992273,
+      "unallocated_gpu_fraction": 0.020154539600772736,
+      "avg_wait_time": 0.0,
+      "avg_jct": 25839.365063788027,
+      "makespan": 12902960,
+      "cluster_fragmentation_score": 0.0016505335452009781
+    }
+  },
+  "fgd_relative_unallocated_reduction": {
+    "random": 0.0,
+    "best_fit": 0.0,
+    "dot_product": 0.1133144475920652,
+    "gpu_packing": 0.0,
+    "gpu_clustering": 0.0
+  }
+}

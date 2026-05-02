@@ -1,0 +1,23 @@
+{
+  "node_csv": "/home/devarsh/Work/queue-optimization/clusterdata/cluster-trace-gpu-v2023/csv/openb_node_list_gpu_node.csv",
+  "pod_csv": "/home/devarsh/Work/queue-optimization/clusterdata/cluster-trace-gpu-v2023/csv/openb_pod_list_default.csv",
+  "num_nodes": 1213,
+  "num_pods": 2000,
+  "policies": {
+    "fgd": {
+      "policy": "fgd",
+      "total_pods": 2000,
+      "scheduled_pods": 2000,
+      "failed_pods": 0,
+      "total_gpu_milli_capacity": 6212000,
+      "allocated_gpu_milli_sum": 1432800,
+      "gpu_allocation_ratio": 0.23065035415325177,
+      "unallocated_gpu_fraction": 0.7693496458467483,
+      "avg_wait_time": 0.0,
+      "avg_jct": 87841.1085,
+      "makespan": 12902960,
+      "cluster_fragmentation_score": 0.0007167053948881258
+    }
+  },
+  "fgd_relative_unallocated_reduction": {}
+}

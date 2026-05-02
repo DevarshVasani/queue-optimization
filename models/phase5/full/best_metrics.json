@@ -1,0 +1,17 @@
+{
+  "best_gar": 0.7078262378675276,
+  "best_step": 50000,
+  "metrics": {
+    "gar": 0.7078262378675276,
+    "allocation_ratio_capacity": 0.7078262378675276,
+    "unallocated_gpu_fraction": 0.29217376213247237,
+    "success_rate": 0.39571150097465885,
+    "mean_frag_delta": 0.02825433088590963,
+    "final_fragmentation_avg": 0.4553100685913186,
+    "sigma_cpu_util": 0.41763022541999817,
+    "sigma_mem_util": 0.4049839675426483,
+    "sigma_gpu_util": 0.39532142877578735,
+    "mean_wait_time_ms": 0.0,
+    "episode_reward": -589972.130677786
+  }
+}

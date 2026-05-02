@@ -1,0 +1,3 @@
+episode_id,split,start_idx,end_idx,length,start_creation_time,end_creation_time,start_pod_name,end_pod_name
+val_0,val,0,499,500,12194827,12434382,openb-pod-5706,openb-pod-6205
+val_1,val,500,999,500,12434547,12616869,openb-pod-6206,openb-pod-6705

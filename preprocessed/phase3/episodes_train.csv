@@ -1,0 +1,12 @@
+episode_id,split,start_idx,end_idx,length,start_creation_time,end_creation_time,start_pod_name,end_pod_name
+train_0,train,0,499,500,0,10212039,openb-pod-0000,openb-pod-0499
+train_1,train,500,999,500,10212048,10382067,openb-pod-0500,openb-pod-0999
+train_2,train,1000,1499,500,10383004,10608655,openb-pod-1000,openb-pod-1499
+train_3,train,1500,1999,500,10608731,10725805,openb-pod-1500,openb-pod-2000
+train_4,train,2000,2499,500,10725873,10934210,openb-pod-2001,openb-pod-2500
+train_5,train,2500,2999,500,10935160,11185236,openb-pod-2501,openb-pod-3000
+train_6,train,3000,3499,500,11185332,11328655,openb-pod-3001,openb-pod-3500
+train_7,train,3500,3999,500,11328658,11498310,openb-pod-3501,openb-pod-4000
+train_8,train,4000,4499,500,11498311,11765800,openb-pod-4001,openb-pod-4500
+train_9,train,4500,4999,500,11767107,11980535,openb-pod-4501,openb-pod-5000
+train_10,train,5000,5499,500,11980552,12128039,openb-pod-5001,openb-pod-5500

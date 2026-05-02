@@ -1,0 +1,556 @@
+{
+  "episodes": {
+    "episode_len": 500,
+    "train_episodes": 11,
+    "train_tail_discarded": 205,
+    "val_episodes": 2,
+    "val_tail_discarded": 222
+  },
+  "input": {
+    "node_csv": "/home/devarsh/Work/queue-optimization/clusterdata/cluster-trace-gpu-v2023/csv/openb_node_list_all_node.csv",
+    "nodes_raw": 1523,
+    "pod_csv": "/home/devarsh/Work/queue-optimization/clusterdata/cluster-trace-gpu-v2023/csv/openb_pod_list_default.csv",
+    "pods_raw": 8152
+  },
+  "nodes": {
+    "cluster_caps": {
+      "gpu_models_present": [
+        "A10",
+        "G2",
+        "G3",
+        "P100",
+        "T4",
+        "V100M16",
+        "V100M32"
+      ],
+      "max_cpu_milli_per_node": 128000,
+      "max_gpu_per_node": 8,
+      "max_memory_mib_per_node": 1048576,
+      "num_cpu_only_nodes": 310,
+      "num_gpu_nodes": 1213,
+      "total_gpu_capacity_milli": 6212000
+    },
+    "kept": 1523,
+    "removed": 0,
+    "removed_reasons": {}
+  },
+  "pods": {
+    "adjustments": {
+      "qos_normalized_or_defaulted": 3397
+    },
+    "kept": 8150,
+    "priority_counts": {
+      "0": 8150
+    },
+    "removed": 2,
+    "removed_reasons": {
+      "invalid_lifecycle_order": 1,
+      "nonpositive_cpu_or_memory": 1
+    }
+  },
+  "sanity_checks": {
+    "creation_time_monotonic": true,
+    "gpu_capacity_vs_demand": {
+      "requested_over_capacity_ratio": 0.9796474565357373,
+      "total_gpu_capacity_milli": 6212000,
+      "total_gpu_requested_milli": 6085570
+    },
+    "inter_arrival_gap_ms": {
+      "count": 8149,
+      "max": 1410436,
+      "min": 0,
+      "q50": 161.0,
+      "q90": 948.0,
+      "q99": 3426.0
+    },
+    "top_demand_types_per_model": {
+      "A10": [
+        {
+          "count": 2742,
+          "gpu_milli": 1000,
+          "num_gpu": 1,
+          "probability": 0.5614250614250614
+        },
+        {
+          "count": 720,
+          "gpu_milli": 810,
+          "num_gpu": 1,
+          "probability": 0.14742014742014742
+        },
+        {
+          "count": 436,
+          "gpu_milli": 470,
+          "num_gpu": 1,
+          "probability": 0.08927108927108927
+        },
+        {
+          "count": 242,
+          "gpu_milli": 320,
+          "num_gpu": 1,
+          "probability": 0.04954954954954955
+        },
+        {
+          "count": 149,
+          "gpu_milli": 650,
+          "num_gpu": 1,
+          "probability": 0.030507780507780507
+        },
+        {
+          "count": 112,
+          "gpu_milli": 230,
+          "num_gpu": 1,
+          "probability": 0.02293202293202293
+        },
+        {
+          "count": 111,
+          "gpu_milli": 460,
+          "num_gpu": 1,
+          "probability": 0.022727272727272728
+        },
+        {
+          "count": 72,
+          "gpu_milli": 550,
+          "num_gpu": 1,
+          "probability": 0.014742014742014743
+        },
+        {
+          "count": 58,
+          "gpu_milli": 160,
+          "num_gpu": 1,
+          "probability": 0.011875511875511875
+        },
+        {
+          "count": 52,
+          "gpu_milli": 220,
+          "num_gpu": 1,
+          "probability": 0.010647010647010647
+        }
+      ],
+      "G2": [
+        {
+          "count": 2742,
+          "gpu_milli": 1000,
+          "num_gpu": 1,
+          "probability": 0.5614250614250614
+        },
+        {
+          "count": 720,
+          "gpu_milli": 810,
+          "num_gpu": 1,
+          "probability": 0.14742014742014742
+        },
+        {
+          "count": 436,
+          "gpu_milli": 470,
+          "num_gpu": 1,
+          "probability": 0.08927108927108927
+        },
+        {
+          "count": 242,
+          "gpu_milli": 320,
+          "num_gpu": 1,
+          "probability": 0.04954954954954955
+        },
+        {
+          "count": 149,
+          "gpu_milli": 650,
+          "num_gpu": 1,
+          "probability": 0.030507780507780507
+        },
+        {
+          "count": 112,
+          "gpu_milli": 230,
+          "num_gpu": 1,
+          "probability": 0.02293202293202293
+        },
+        {
+          "count": 111,
+          "gpu_milli": 460,
+          "num_gpu": 1,
+          "probability": 0.022727272727272728
+        },
+        {
+          "count": 72,
+          "gpu_milli": 550,
+          "num_gpu": 1,
+          "probability": 0.014742014742014743
+        },
+        {
+          "count": 58,
+          "gpu_milli": 160,
+          "num_gpu": 1,
+          "probability": 0.011875511875511875
+        },
+        {
+          "count": 52,
+          "gpu_milli": 220,
+          "num_gpu": 1,
+          "probability": 0.010647010647010647
+        }
+      ],
+      "G3": [
+        {
+          "count": 2742,
+          "gpu_milli": 1000,
+          "num_gpu": 1,
+          "probability": 0.5614250614250614
+        },
+        {
+          "count": 720,
+          "gpu_milli": 810,
+          "num_gpu": 1,
+          "probability": 0.14742014742014742
+        },
+        {
+          "count": 436,
+          "gpu_milli": 470,
+          "num_gpu": 1,
+          "probability": 0.08927108927108927
+        },
+        {
+          "count": 242,
+          "gpu_milli": 320,
+          "num_gpu": 1,
+          "probability": 0.04954954954954955
+        },
+        {
+          "count": 149,
+          "gpu_milli": 650,
+          "num_gpu": 1,
+          "probability": 0.030507780507780507
+        },
+        {
+          "count": 112,
+          "gpu_milli": 230,
+          "num_gpu": 1,
+          "probability": 0.02293202293202293
+        },
+        {
+          "count": 111,
+          "gpu_milli": 460,
+          "num_gpu": 1,
+          "probability": 0.022727272727272728
+        },
+        {
+          "count": 72,
+          "gpu_milli": 550,
+          "num_gpu": 1,
+          "probability": 0.014742014742014743
+        },
+        {
+          "count": 58,
+          "gpu_milli": 160,
+          "num_gpu": 1,
+          "probability": 0.011875511875511875
+        },
+        {
+          "count": 52,
+          "gpu_milli": 220,
+          "num_gpu": 1,
+          "probability": 0.010647010647010647
+        }
+      ],
+      "P100": [
+        {
+          "count": 2742,
+          "gpu_milli": 1000,
+          "num_gpu": 1,
+          "probability": 0.5614250614250614
+        },
+        {
+          "count": 720,
+          "gpu_milli": 810,
+          "num_gpu": 1,
+          "probability": 0.14742014742014742
+        },
+        {
+          "count": 436,
+          "gpu_milli": 470,
+          "num_gpu": 1,
+          "probability": 0.08927108927108927
+        },
+        {
+          "count": 242,
+          "gpu_milli": 320,
+          "num_gpu": 1,
+          "probability": 0.04954954954954955
+        },
+        {
+          "count": 149,
+          "gpu_milli": 650,
+          "num_gpu": 1,
+          "probability": 0.030507780507780507
+        },
+        {
+          "count": 112,
+          "gpu_milli": 230,
+          "num_gpu": 1,
+          "probability": 0.02293202293202293
+        },
+        {
+          "count": 111,
+          "gpu_milli": 460,
+          "num_gpu": 1,
+          "probability": 0.022727272727272728
+        },
+        {
+          "count": 72,
+          "gpu_milli": 550,
+          "num_gpu": 1,
+          "probability": 0.014742014742014743
+        },
+        {
+          "count": 58,
+          "gpu_milli": 160,
+          "num_gpu": 1,
+          "probability": 0.011875511875511875
+        },
+        {
+          "count": 52,
+          "gpu_milli": 220,
+          "num_gpu": 1,
+          "probability": 0.010647010647010647
+        }
+      ],
+      "T4": [
+        {
+          "count": 2742,
+          "gpu_milli": 1000,
+          "num_gpu": 1,
+          "probability": 0.5614250614250614
+        },
+        {
+          "count": 720,
+          "gpu_milli": 810,
+          "num_gpu": 1,
+          "probability": 0.14742014742014742
+        },
+        {
+          "count": 436,
+          "gpu_milli": 470,
+          "num_gpu": 1,
+          "probability": 0.08927108927108927
+        },
+        {
+          "count": 242,
+          "gpu_milli": 320,
+          "num_gpu": 1,
+          "probability": 0.04954954954954955
+        },
+        {
+          "count": 149,
+          "gpu_milli": 650,
+          "num_gpu": 1,
+          "probability": 0.030507780507780507
+        },
+        {
+          "count": 112,
+          "gpu_milli": 230,
+          "num_gpu": 1,
+          "probability": 0.02293202293202293
+        },
+        {
+          "count": 111,
+          "gpu_milli": 460,
+          "num_gpu": 1,
+          "probability": 0.022727272727272728
+        },
+        {
+          "count": 72,
+          "gpu_milli": 550,
+          "num_gpu": 1,
+          "probability": 0.014742014742014743
+        },
+        {
+          "count": 58,
+          "gpu_milli": 160,
+          "num_gpu": 1,
+          "probability": 0.011875511875511875
+        },
+        {
+          "count": 52,
+          "gpu_milli": 220,
+          "num_gpu": 1,
+          "probability": 0.010647010647010647
+        }
+      ],
+      "V100M16": [
+        {
+          "count": 2742,
+          "gpu_milli": 1000,
+          "num_gpu": 1,
+          "probability": 0.5614250614250614
+        },
+        {
+          "count": 720,
+          "gpu_milli": 810,
+          "num_gpu": 1,
+          "probability": 0.14742014742014742
+        },
+        {
+          "count": 436,
+          "gpu_milli": 470,
+          "num_gpu": 1,
+          "probability": 0.08927108927108927
+        },
+        {
+          "count": 242,
+          "gpu_milli": 320,
+          "num_gpu": 1,
+          "probability": 0.04954954954954955
+        },
+        {
+          "count": 149,
+          "gpu_milli": 650,
+          "num_gpu": 1,
+          "probability": 0.030507780507780507
+        },
+        {
+          "count": 112,
+          "gpu_milli": 230,
+          "num_gpu": 1,
+          "probability": 0.02293202293202293
+        },
+        {
+          "count": 111,
+          "gpu_milli": 460,
+          "num_gpu": 1,
+          "probability": 0.022727272727272728
+        },
+        {
+          "count": 72,
+          "gpu_milli": 550,
+          "num_gpu": 1,
+          "probability": 0.014742014742014743
+        },
+        {
+          "count": 58,
+          "gpu_milli": 160,
+          "num_gpu": 1,
+          "probability": 0.011875511875511875
+        },
+        {
+          "count": 52,
+          "gpu_milli": 220,
+          "num_gpu": 1,
+          "probability": 0.010647010647010647
+        }
+      ],
+      "V100M32": [
+        {
+          "count": 2742,
+          "gpu_milli": 1000,
+          "num_gpu": 1,
+          "probability": 0.5614250614250614
+        },
+        {
+          "count": 720,
+          "gpu_milli": 810,
+          "num_gpu": 1,
+          "probability": 0.14742014742014742
+        },
+        {
+          "count": 436,
+          "gpu_milli": 470,
+          "num_gpu": 1,
+          "probability": 0.08927108927108927
+        },
+        {
+          "count": 242,
+          "gpu_milli": 320,
+          "num_gpu": 1,
+          "probability": 0.04954954954954955
+        },
+        {
+          "count": 149,
+          "gpu_milli": 650,
+          "num_gpu": 1,
+          "probability": 0.030507780507780507
+        },
+        {
+          "count": 112,
+          "gpu_milli": 230,
+          "num_gpu": 1,
+          "probability": 0.02293202293202293
+        },
+        {
+          "count": 111,
+          "gpu_milli": 460,
+          "num_gpu": 1,
+          "probability": 0.022727272727272728
+        },
+        {
+          "count": 72,
+          "gpu_milli": 550,
+          "num_gpu": 1,
+          "probability": 0.014742014742014743
+        },
+        {
+          "count": 58,
+          "gpu_milli": 160,
+          "num_gpu": 1,
+          "probability": 0.011875511875511875
+        },
+        {
+          "count": 52,
+          "gpu_milli": 220,
+          "num_gpu": 1,
+          "probability": 0.010647010647010647
+        }
+      ]
+    }
+  },
+  "split": {
+    "test": {
+      "cpu_only_pods": 71,
+      "creation_time_end": 12901761,
+      "creation_time_start": 12692206,
+      "gpu_pods": 1152,
+      "inter_arrival_gap_ms": {
+        "max": 3833,
+        "min": 0,
+        "q50": 72.0,
+        "q90": 402.0,
+        "q99": 1385.0
+      },
+      "pods": 1223,
+      "split": "test",
+      "sum_gpu_milli_requested": 971230
+    },
+    "test_ratio": 0.15000000000000005,
+    "train": {
+      "cpu_only_pods": 821,
+      "creation_time_end": 12194774,
+      "creation_time_start": 0,
+      "gpu_pods": 4884,
+      "inter_arrival_gap_ms": {
+        "max": 1410436,
+        "min": 0,
+        "q50": 183.0,
+        "q90": 1025.0,
+        "q99": 3671.0
+      },
+      "pods": 5705,
+      "split": "train",
+      "sum_gpu_milli_requested": 4232080
+    },
+    "train_ratio": 0.7,
+    "val": {
+      "cpu_only_pods": 196,
+      "creation_time_end": 12691741,
+      "creation_time_start": 12194827,
+      "gpu_pods": 1026,
+      "inter_arrival_gap_ms": {
+        "max": 5866,
+        "min": 0,
+        "q50": 193.0,
+        "q90": 1040.0,
+        "q99": 3442.0
+      },
+      "pods": 1222,
+      "split": "val",
+      "sum_gpu_milli_requested": 882260
+    },
+    "val_ratio": 0.15
+  }
+}
