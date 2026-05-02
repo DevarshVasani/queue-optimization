@@ -1,0 +1,98 @@
+{
+  "fgd": {
+    "0.1": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "0.5": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "1.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "2.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "5.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "10.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    }
+  },
+  "best_fit": {
+    "0.1": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "0.5": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "1.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "2.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "5.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "10.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    }
+  },
+  "dot_product": {
+    "0.1": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "0.5": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "1.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "2.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "5.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    },
+    "10.0": {
+      "cluster_fragmentation_score": 0.0,
+      "avg_jct": 2776.8,
+      "gpu_allocation_ratio": 0.004948486799742434
+    }
+  }
+}

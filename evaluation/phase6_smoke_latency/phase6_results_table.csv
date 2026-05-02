@@ -1,0 +1,2 @@
+scenario,method,gar_capacity_mean,gar_capacity_std,unallocated_mean,success_rate_mean,avg_sigma_gpu_util_mean,avg_wait_time_ms_mean,avg_job_completion_time_ms_mean,p95_job_completion_time_ms_mean,p99_job_completion_time_ms_mean,latency_objective_mean,final_full_free_gpu_count_mean,infeasible_action_count_mean
+full,best_fit,0.8453615451388888,0.0,0.15463845486111116,1.0,0.08806005020515942,1409583.853298611,2009583.853298611,3466707.5,4019448.79,5.46135045785781,32.0,0.0
