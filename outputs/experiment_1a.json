@@ -65,6 +65,11 @@
       "final_value": -25000.0,
       "max_value": -25000.0
     },
+    "full/full_phase1_7": {
+      "final_step": 65536.0,
+      "final_value": 1998.798583984375,
+      "max_value": 1998.798583984375
+    },
     "success_only/MaskablePPO_2": {
       "final_step": 114688.0,
       "final_value": 500.0,
@@ -141,6 +146,11 @@
       "final_step": 311296.0,
       "final_value": 0.0,
       "max_value": 0.0
+    },
+    "full/full_phase1_7": {
+      "final_step": 65536.0,
+      "final_value": 0.4286997318267822,
+      "max_value": 0.4286997318267822
     },
     "success_only/MaskablePPO_2": {
       "final_step": 114688.0,
@@ -219,6 +229,11 @@
       "final_value": 0.0,
       "max_value": 0.0
     },
+    "full/full_phase1_7": {
+      "final_step": 65536.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
     "success_only/MaskablePPO_2": {
       "final_step": 114688.0,
       "final_value": 1.0,
@@ -296,6 +311,11 @@
       "final_value": 0.0,
       "max_value": 0.0
     },
+    "full/full_phase1_7": {
+      "final_step": 65536.0,
+      "final_value": 4.259163688402623e-06,
+      "max_value": 4.259163688402623e-06
+    },
     "success_only/MaskablePPO_2": {
       "final_step": 114688.0,
       "final_value": 0.0,
@@ -363,6 +383,11 @@
       "final_value": -2.6375648975372314,
       "max_value": -2.6375648975372314
     },
+    "full/full_phase1_7": {
+      "final_step": 65536.0,
+      "final_value": -3.2574563026428223,
+      "max_value": -3.2574563026428223
+    },
     "success_only/MaskablePPO_2": {
       "final_step": 114688.0,
       "final_value": -4.5694732666015625,
@@ -374,5 +399,11 @@
       "max_value": -4.5694732666015625
     }
   },
-  "validation_latency_objective": {}
+  "validation_latency_objective": {
+    "full/full_phase1_7": {
+      "final_step": 65536.0,
+      "final_value": 1.0002671480178833,
+      "max_value": 1.0002671480178833
+    }
+  }
 }

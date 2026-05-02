@@ -444,7 +444,9 @@ class GPUSchedulingEnv(gym.Env):
         duration = self._pod_duration_ms(pod)
         now = int(self.sim.current_time) if self.sim is not None else int(pod.creation_time)
         if scheduled:
-            completion_time = now + duration
+            # Use pod.scheduled_time if available (set during schedule_pod), otherwise use now
+            scheduled_time = int(pod.scheduled_time) if pod.scheduled_time is not None else now
+            completion_time = scheduled_time + duration
         else:
             completion_time = max(now, int(pod.creation_time) + duration)
 
@@ -454,7 +456,6 @@ class GPUSchedulingEnv(gym.Env):
         new_slowdowns = [*self._episode_job_slowdowns, slowdown]
         new_objective = self._latency_objective(new_slowdowns)
         objective_delta = new_objective - old_objective
-
         self._episode_job_latency_ms.append(latency_ms)
         self._episode_job_slowdowns.append(slowdown)
         self._latency_objective_value = new_objective
@@ -620,8 +621,10 @@ class GPUSchedulingEnv(gym.Env):
                 )
 
             _, _, objective_delta = self._record_latency_sample(pod, scheduled=True)
+            # Success bonus: +success_reward for scheduling, -objective_delta for latency penalty
+            # This ensures positive signal for good scheduling decisions
             return RewardBreakdown(
-                success=0.0,
+                success=self.success_reward * 0.2,
                 fragmentation=0.0,
                 global_fragmentation=0.0,
                 balance=0.0,

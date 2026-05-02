@@ -258,6 +258,9 @@ class ValidationLatencyCallback(BaseCallback):
         if self.n_calls % self.eval_freq != 0:
             return True
 
+
+        current_step = int(self.num_timesteps)
+
         if isinstance(self.training_env, VecNormalize):
             self.eval_env.obs_rms = self.training_env.obs_rms
 
@@ -288,7 +291,6 @@ class ValidationLatencyCallback(BaseCallback):
         self.logger.record("validation/p99_job_slowdown", metrics["p99_job_slowdown"])
         self.logger.record("validation/episode_reward", metrics["episode_reward"])
 
-        current_step = int(self.num_timesteps)
         improved = metrics["latency_objective"] < self.best_latency_objective
         if improved:
             self.best_gar = metrics["allocation_ratio_capacity"]
@@ -1003,6 +1005,7 @@ def train_one_experiment(
     )
     vec_eval = _build_eval_vec_env(args=args, reward_cfg=reward_cfg)
     vec_eval.obs_rms = vec_train.obs_rms
+    1
 
     if args.policy_arch == "attention":
         policy_kwargs = dict(
