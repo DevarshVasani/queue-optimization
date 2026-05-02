@@ -4,3 +4,4 @@ torch>=2.1
 stable-baselines3>=2.2
 sb3-contrib>=2.2
 matplotlib>=3.8
+tensorboard>=2.15
