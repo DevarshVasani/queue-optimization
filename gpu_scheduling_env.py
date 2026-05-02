@@ -185,6 +185,8 @@ class RewardBreakdown:
     free_gpu: float
     utilization: float
     slo: float
+    latency_objective: float = 0.0
+    latency_failure: float = 0.0
 
     @property
     def total(self) -> float:
@@ -196,6 +198,8 @@ class RewardBreakdown:
             + self.free_gpu
             + self.utilization
             + self.slo
+            + self.latency_objective
+            + self.latency_failure
         )
 
 
@@ -217,6 +221,7 @@ class GPUSchedulingEnv(gym.Env):
         global_frag_weight: float = 0.0,
         free_gpu_weight: float = 0.0,
         free_gpu_penalty_mode: str = "terminal",
+        reward_mode: str = "latency",
         slo_threshold_ms: int = 30_000,
         slo_penalty: float = -2.0,
         priority_multiplier: float = 3.0,
@@ -247,6 +252,9 @@ class GPUSchedulingEnv(gym.Env):
         self.free_gpu_penalty_mode = str(free_gpu_penalty_mode).strip().lower()
         if self.free_gpu_penalty_mode not in {"terminal", "step"}:
             raise ValueError("free_gpu_penalty_mode must be 'terminal' or 'step'")
+        self.reward_mode = str(reward_mode).strip().lower()
+        if self.reward_mode not in {"latency", "legacy"}:
+            raise ValueError("reward_mode must be one of: latency, legacy")
         self.slo_threshold_ms = int(slo_threshold_ms)
         self.slo_penalty = float(slo_penalty)
         self.priority_multiplier = float(priority_multiplier)
@@ -314,9 +322,19 @@ class GPUSchedulingEnv(gym.Env):
         self._episode_frag_delta_sum = 0.0
         self._episode_wait_ms_sum = 0.0
         self._episode_reward_sum = 0.0
+        self._episode_job_latency_ms: List[float] = []
+        self._episode_job_slowdowns: List[float] = []
+        self._latency_objective_value = 0.0
+        self._last_job_latency_ms = 0.0
+        self._last_job_slowdown = 0.0
+        self._last_latency_objective = 0.0
+        self._last_latency_objective_delta = 0.0
         self._episode_live_gpu_milli_sum = 0.0
         self._episode_live_gpu_peak_milli = 0.0
         self._episode_live_gpu_last_milli = 0.0
+        self._incoming_idx = 0
+        self._pending_pods: List[Pod] = []
+        self._current_pod_obj: Optional[Pod] = None
 
         self.sim: Optional[ClusterSimulator] = None
 
@@ -395,7 +413,128 @@ class GPUSchedulingEnv(gym.Env):
         return idx / max(1, len(NODE_MODEL_ORDER) - 1)
 
     def _current_pod(self) -> Pod:
-        return self._episode_pods[self._pod_idx]
+        if self._current_pod_obj is None:
+            raise RuntimeError("no current pod; call reset() before stepping")
+        return self._current_pod_obj
+
+    def _episode_limit(self) -> int:
+        return min(len(self._episode_pods), self.max_pods_per_episode)
+
+    def _pod_sort_key(self, pod: Pod) -> Tuple[int, int, str]:
+        return (int(pod.creation_time), -_priority_from_pod(pod), pod.name)
+
+    def _pod_duration_ms(self, pod: Pod) -> int:
+        return max(1, int(pod.deletion_time) - int(pod.creation_time))
+
+    def _latency_percentile(self, values: Sequence[float], q: float) -> float:
+        if not values:
+            return 0.0
+        return float(np.percentile(np.asarray(values, dtype=np.float64), q))
+
+    def _latency_objective(self, slowdowns: Sequence[float]) -> float:
+        if not slowdowns:
+            return 0.0
+        arr = np.asarray(slowdowns, dtype=np.float64)
+        mean_slowdown = float(np.mean(arr))
+        p95_slowdown = float(np.percentile(arr, 95))
+        p99_slowdown = float(np.percentile(arr, 99))
+        return float(np.sqrt(np.mean(np.square([mean_slowdown, p95_slowdown, p99_slowdown]))))
+
+    def _record_latency_sample(self, pod: Pod, *, scheduled: bool) -> Tuple[float, float, float]:
+        duration = self._pod_duration_ms(pod)
+        now = int(self.sim.current_time) if self.sim is not None else int(pod.creation_time)
+        if scheduled:
+            completion_time = now + duration
+        else:
+            completion_time = max(now, int(pod.creation_time) + duration)
+
+        latency_ms = float(max(1, completion_time - int(pod.creation_time)))
+        slowdown = float(latency_ms / float(duration))
+        old_objective = self._latency_objective_value
+        new_slowdowns = [*self._episode_job_slowdowns, slowdown]
+        new_objective = self._latency_objective(new_slowdowns)
+        objective_delta = new_objective - old_objective
+
+        self._episode_job_latency_ms.append(latency_ms)
+        self._episode_job_slowdowns.append(slowdown)
+        self._latency_objective_value = new_objective
+        self._last_job_latency_ms = latency_ms
+        self._last_job_slowdown = slowdown
+        self._last_latency_objective = new_objective
+        self._last_latency_objective_delta = objective_delta
+        return latency_ms, slowdown, objective_delta
+
+    def _add_arrivals_up_to_current_time(self) -> None:
+        if self.sim is None:
+            raise RuntimeError("simulator is not initialised")
+        limit = self._episode_limit()
+        while self._incoming_idx < limit:
+            pod = self._episode_pods[self._incoming_idx]
+            if int(pod.creation_time) > int(self.sim.current_time):
+                break
+            self._pending_pods.append(pod)
+            self._episode_requested_gpu_milli += pod.total_gpu_milli
+            self._incoming_idx += 1
+
+    def _next_event_time(self) -> Optional[int]:
+        if self.sim is None:
+            raise RuntimeError("simulator is not initialised")
+        times: List[int] = []
+        limit = self._episode_limit()
+        if self._incoming_idx < limit:
+            times.append(int(self._episode_pods[self._incoming_idx].creation_time))
+        if self.sim.running_heap:
+            times.append(int(self.sim.running_heap[0][0]))
+        if not times:
+            return None
+        now = int(self.sim.current_time)
+        future = [t for t in times if t > now]
+        return min(future) if future else min(times)
+
+    def _fail_pending_pods(self) -> None:
+        for pod in list(self._pending_pods):
+            self._record_latency_sample(pod, scheduled=False)
+            self._episode_failed += 1
+        self._pending_pods.clear()
+
+    def _advance_to_next_decision(self) -> None:
+        if self._terminated:
+            return
+        if self.sim is None:
+            raise RuntimeError("simulator is not initialised")
+
+        self._current_pod_obj = None
+        while True:
+            self._add_arrivals_up_to_current_time()
+            self._pending_pods.sort(key=self._pod_sort_key)
+
+            for pod in self._pending_pods:
+                strict_mask = self._compute_mask_for_pod(pod)
+                if np.any(strict_mask):
+                    self._current_pod_obj = pod
+                    self._strict_mask = strict_mask
+                    self._current_mask = self._safe_mask(strict_mask)
+                    self._synced_pod_idx = self._pod_idx
+                    return
+
+            next_time = self._next_event_time()
+            if next_time is None:
+                self._fail_pending_pods()
+                while self.sim.running_heap:
+                    self.sim.advance_to_time(int(self.sim.running_heap[0][0]))
+                self._terminated = True
+                self._current_mask = np.zeros((self.node_count,), dtype=bool)
+                self._strict_mask = np.zeros((self.node_count,), dtype=bool)
+                return
+
+            if next_time <= int(self.sim.current_time):
+                self._fail_pending_pods()
+                self._terminated = True
+                self._current_mask = np.zeros((self.node_count,), dtype=bool)
+                self._strict_mask = np.zeros((self.node_count,), dtype=bool)
+                return
+
+            self.sim.advance_to_time(next_time)
 
     def _compute_mask_for_pod(self, pod: Pod) -> np.ndarray:
         if self.sim is None:
@@ -417,13 +556,7 @@ class GPUSchedulingEnv(gym.Env):
             return
         if self.sim is None:
             raise RuntimeError("simulator is not initialised")
-
-        pod = self._current_pod()
-        self.sim.advance_to_time(pod.creation_time)
-        strict_mask = self._compute_mask_for_pod(pod)
-        self._strict_mask = strict_mask
-        self._current_mask = self._safe_mask(strict_mask)
-        self._synced_pod_idx = self._pod_idx
+        self._advance_to_next_decision()
 
     def _node_balance_penalty(self) -> float:
         sigma_cpu, sigma_mem, sigma_gpu = self._utilization_sigmas()
@@ -471,7 +604,36 @@ class GPUSchedulingEnv(gym.Env):
         frag_after: float,
         terminated: bool,
     ) -> RewardBreakdown:
+        if self.reward_mode == "latency":
+            if no_feasible or not scheduled:
+                _, _, objective_delta = self._record_latency_sample(pod, scheduled=False)
+                return RewardBreakdown(
+                    success=0.0,
+                    fragmentation=0.0,
+                    global_fragmentation=0.0,
+                    balance=0.0,
+                    free_gpu=0.0,
+                    utilization=0.0,
+                    slo=0.0,
+                    latency_objective=0.0,
+                    latency_failure=-abs(objective_delta),
+                )
+
+            _, _, objective_delta = self._record_latency_sample(pod, scheduled=True)
+            return RewardBreakdown(
+                success=0.0,
+                fragmentation=0.0,
+                global_fragmentation=0.0,
+                balance=0.0,
+                free_gpu=0.0,
+                utilization=0.0,
+                slo=0.0,
+                latency_objective=-objective_delta,
+                latency_failure=0.0,
+            )
+
         if no_feasible or not scheduled:
+            self._record_latency_sample(pod, scheduled=False)
             return RewardBreakdown(
                 success=self.fail_penalty,
                 fragmentation=0.0,
@@ -482,6 +644,7 @@ class GPUSchedulingEnv(gym.Env):
                 slo=0.0,
             )
 
+        self._record_latency_sample(pod, scheduled=True)
         delta = max(0.0, frag_after - frag_before) * self.frag_delta_scale
         r_success = self.success_reward
         r_frag = -self.frag_weight * delta
@@ -573,7 +736,12 @@ class GPUSchedulingEnv(gym.Env):
             per_model_free.append(free_gpu_count / denom)
 
         frag_avg = self._cluster_fragmentation_average()
-        pods_pending = 0.0
+        # normalized pending pods: gives policy a sense of backlog/queue pressure
+        try:
+            denom_pods = max(1, int(self._episode_limit()))
+        except Exception:
+            denom_pods = max(1, int(self.max_pods_per_episode))
+        pods_pending = float(len(self._pending_pods)) / float(denom_pods)
         current_time_norm = float(self.sim.current_time) / float(self.trace_max_timestamp)
 
         return [*per_model_free, frag_avg, pods_pending, current_time_norm]
@@ -623,7 +791,13 @@ class GPUSchedulingEnv(gym.Env):
             "reward_free_gpu": reward.free_gpu,
             "reward_utilization": reward.utilization,
             "reward_slo": reward.slo,
+            "reward_latency_objective": reward.latency_objective,
+            "reward_latency_failure": reward.latency_failure,
             "reward_total": reward.total,
+            "job_completion_time_ms": float(self._last_job_latency_ms),
+            "job_slowdown": float(self._last_job_slowdown),
+            "latency_objective": float(self._last_latency_objective),
+            "latency_objective_delta": float(self._last_latency_objective_delta),
             "sigma_cpu_util": sigma_cpu,
             "sigma_mem_util": sigma_mem,
             "sigma_gpu_util": sigma_gpu,
@@ -650,6 +824,8 @@ class GPUSchedulingEnv(gym.Env):
         sigma_cpu, sigma_mem, sigma_gpu = self._utilization_sigmas()
         frag_avg = self._cluster_fragmentation_average()
         full_free_gpu_count = self._cluster_full_free_gpu_count()
+        latencies = list(self._episode_job_latency_ms)
+        slowdowns = list(self._episode_job_slowdowns)
         return {
             "requested_gpu_milli": requested,
             "allocated_gpu_milli": allocated,
@@ -665,6 +841,13 @@ class GPUSchedulingEnv(gym.Env):
             "success_rate": self._episode_scheduled / steps,
             "mean_frag_delta": self._episode_frag_delta_sum / steps,
             "mean_wait_time_ms": self._episode_wait_ms_sum / steps,
+            "mean_job_completion_time_ms": float(np.mean(latencies)) if latencies else 0.0,
+            "p95_job_completion_time_ms": self._latency_percentile(latencies, 95),
+            "p99_job_completion_time_ms": self._latency_percentile(latencies, 99),
+            "mean_job_slowdown": float(np.mean(slowdowns)) if slowdowns else 0.0,
+            "p95_job_slowdown": self._latency_percentile(slowdowns, 95),
+            "p99_job_slowdown": self._latency_percentile(slowdowns, 99),
+            "latency_objective": float(self._latency_objective_value),
             "final_fragmentation_avg": frag_avg,
             "full_free_gpu_count": full_free_gpu_count,
             "sigma_cpu_util": sigma_cpu,
@@ -701,6 +884,12 @@ class GPUSchedulingEnv(gym.Env):
             record_history=False,
         )
         self.sim.reset()
+        self.sim.pending_pods = []
+        self.sim.incoming_index = 0
+        self.sim.arrived_gpu_milli_sum = 0
+        self.sim.allocated_gpu_milli_sum = 0
+        self.sim.failed = []
+        self.sim._prepared = None  # type: ignore[attr-defined]
         if self.gpu_capacity_scale < 1.0:
             baseline_reserved = int(round((1.0 - self.gpu_capacity_scale) * 1000))
             baseline_reserved = int(np.clip(baseline_reserved, 0, 950))
@@ -719,19 +908,29 @@ class GPUSchedulingEnv(gym.Env):
         self._episode_frag_delta_sum = 0.0
         self._episode_wait_ms_sum = 0.0
         self._episode_reward_sum = 0.0
+        self._episode_job_latency_ms = []
+        self._episode_job_slowdowns = []
+        self._latency_objective_value = 0.0
+        self._last_job_latency_ms = 0.0
+        self._last_job_slowdown = 0.0
+        self._last_latency_objective = 0.0
+        self._last_latency_objective_delta = 0.0
         self._episode_live_gpu_milli_sum = 0.0
         self._episode_live_gpu_peak_milli = 0.0
         self._episode_live_gpu_last_milli = 0.0
+        self._incoming_idx = 0
+        self._pending_pods = []
+        self._current_pod_obj = None
         self.current_episode_number = episode_idx
         self._episodes_served += 1
 
         self._sync_current_pod()
-        obs = self._get_obs()
+        obs = np.zeros((self.obs_dim,), dtype=np.float32) if self._terminated else self._get_obs()
         info = {
             "episode_index": episode_idx,
             "action_mask": self._current_mask.astype(np.int8),
             "strict_action_mask": self._strict_mask.astype(np.int8),
-            "pod_name": self._current_pod().name,
+            "pod_name": "" if self._terminated else self._current_pod().name,
             "obs_dim": self.obs_dim,
         }
         return obs, info
@@ -775,6 +974,7 @@ class GPUSchedulingEnv(gym.Env):
                     reason = "schedule_recheck_failed"
                 else:
                     frag_after = self.sim.get_fragmentation_score(action_idx)
+                    self._pending_pods = [p for p in self._pending_pods if p.name != pod.name]
 
         reward_parts = self._compute_reward(
             pod=pod,
@@ -801,7 +1001,6 @@ class GPUSchedulingEnv(gym.Env):
         info["frag_delta"] = frag_after - frag_before
         info["frag_delta_scaled"] = (frag_after - frag_before) * self.frag_delta_scale
 
-        self._episode_requested_gpu_milli += pod.total_gpu_milli
         if scheduled:
             self._episode_allocated_gpu_milli += pod.total_gpu_milli
             self._episode_scheduled += 1
@@ -816,14 +1015,13 @@ class GPUSchedulingEnv(gym.Env):
         self._episode_live_gpu_last_milli = live_gpu_milli
 
         self._pod_idx += 1
-        if self._pod_idx >= min(len(self._episode_pods), self.max_pods_per_episode):
-            self._terminated = True
+        self._synced_pod_idx = -1
+        self._sync_current_pod()
+        if self._terminated:
             obs = np.zeros((self.obs_dim,), dtype=np.float32)
             terminated = True
             info["episode_metrics"] = self.get_metrics()
         else:
-            self._synced_pod_idx = -1
-            self._sync_current_pod()
             obs = self._get_obs()
             terminated = False
 

@@ -80,9 +80,15 @@ def main() -> None:
             gar_capacity = float(episode_metrics.get("gar", 0.0))
             gar_requested = float(episode_metrics.get("gar_requested", 0.0))
             unalloc = float(episode_metrics.get("unallocated_gpu_fraction", 0.0))
+            mean_jct = float(episode_metrics.get("mean_job_completion_time_ms", 0.0))
+            p95_jct = float(episode_metrics.get("p95_job_completion_time_ms", 0.0))
+            p99_jct = float(episode_metrics.get("p99_job_completion_time_ms", 0.0))
+            latency_obj = float(episode_metrics.get("latency_objective", 0.0))
             print(
                 f"episode={ep} GAR_capacity={gar_capacity:.4f} "
-                f"GAR_requested={gar_requested:.4f} unallocated={unalloc:.4f}"
+                f"GAR_requested={gar_requested:.4f} unallocated={unalloc:.4f} "
+                f"mean_JCT_ms={mean_jct:.1f} p95_JCT_ms={p95_jct:.1f} "
+                f"p99_JCT_ms={p99_jct:.1f} latency_obj={latency_obj:.4f}"
             )
 
         total_reward += ep_reward

@@ -115,6 +115,10 @@ class Pod:
     def total_gpu_milli(self) -> int:
         return self.num_gpu * self.gpu_milli
 
+    @property
+    def duration_ms(self) -> int:
+        return max(1, int(self.deletion_time) - int(self.creation_time))
+
 
 @dataclass
 class RunningPod:
@@ -494,7 +498,7 @@ class ClusterSimulator:
         self._running_seq = 0
         self._prepared: Optional[DecisionContext] = None
         self._frag_cache: Dict[Tuple[str, Tuple[int, ...]], float] = {}
-        self._placement_cache: Dict[Tuple[str, str], List[Tuple[int, ...]]] = {}
+        self._placement_cache: Dict[Tuple[object, ...], List[Tuple[int, ...]]] = {}
 
         self.total_gpu_capacity_milli = sum(n.gpu_count * 1000 for n in self.nodes)
         self.arrived_gpu_milli_sum = 0
@@ -613,6 +617,7 @@ class ClusterSimulator:
         pod.assigned_node = node_ref.node_id
         pod.assigned_gpus = tuple(gpu_indices)
 
+        completion_time = self.current_time + pod.duration_ms
         running = RunningPod(
             pod_name=pod.name,
             node_id=node_ref.node_id,
@@ -620,7 +625,7 @@ class ClusterSimulator:
             cpu_milli=pod.cpu_milli,
             memory_mib=pod.memory_mib,
             gpu_milli=pod.gpu_milli,
-            deletion_time=pod.deletion_time,
+            deletion_time=completion_time,
             creation_time=pod.creation_time,
             scheduled_time=self.current_time,
         )
@@ -721,7 +726,13 @@ class ClusterSimulator:
         return node.model in pod.gpu_spec
 
     def _candidate_gpu_sets(self, node: Node, pod: Pod) -> List[Tuple[int, ...]]:
-        cache_key = (node.node_id, pod.name)
+        cache_key = (
+            node.node_id,
+            pod.name,
+            node.cpu_avail,
+            node.memory_avail,
+            tuple(g.free_milli for g in node.gpu_list),
+        )
         cached = self._placement_cache.get(cache_key)
         if cached is not None:
             return cached
@@ -920,6 +931,7 @@ class ClusterSimulator:
         pod.assigned_node = node_id
         pod.assigned_gpus = gpu_indices
 
+        completion_time = self.current_time + pod.duration_ms
         running = RunningPod(
             pod_name=pod.name,
             node_id=node_id,
@@ -927,7 +939,7 @@ class ClusterSimulator:
             cpu_milli=pod.cpu_milli,
             memory_mib=pod.memory_mib,
             gpu_milli=pod.gpu_milli,
-            deletion_time=pod.deletion_time,
+            deletion_time=completion_time,
             creation_time=pod.creation_time,
             scheduled_time=self.current_time,
         )

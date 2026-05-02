@@ -9,14 +9,14 @@ This repository now includes a full Gym-compatible environment for RL scheduling
 
 ## 1) Environment design
 
-The environment follows one decision per step:
+The environment follows one scheduling decision per step:
 
-1. Advance simulator time to current pod arrival.
+1. Advance simulator time to the next arrival or completion that can produce a feasible pending pod.
 2. Process completions via simulator internal state updates.
-3. Compute strict feasibility mask for all nodes.
+3. Keep infeasible pods pending instead of treating them as immediately failed.
 4. Build observation vector.
 5. Apply action (node index), schedule pod if feasible.
-6. Compute reward components and move to next pod.
+6. Compute a latency-objective reward and move to the next feasible pending pod.
 
 It uses `ClusterSimulator` from `cluster_sim.py` and new API methods added there.
 
@@ -25,11 +25,11 @@ It uses `ClusterSimulator` from `cluster_sim.py` and new API methods added there
 - Action space: `Discrete(N)` where `N=node_count`
 - Observation: flat vector
   - pod block: 17 dims
-  - node block: `N * 7` dims
+  - node block: `N * 8` dims
   - global block: 10 dims
   - total: `17 + 7N + 10`
 
-For `N=128`, shape is `923`.
+For `N=128`, shape is `1051`.
 
 The environment exposes:
 
@@ -38,23 +38,16 @@ The environment exposes:
 
 Use `strict_action_mask` in diagnostics, and `action_masks` for MaskablePPO compatibility.
 
-## 3) Reward components
+## 3) Reward objective
 
-`R = R_succ + R_frag + R_bal + R_slo`
+Default training uses `reward_mode=latency`, a weight-free objective aligned with job completion time and tail latency:
 
-- `R_succ`: `success_reward` or `fail_penalty`
-- `R_frag`: `-frag_weight * (F_after - F_before)` for chosen node
-- `R_bal`: `-balance_weight * (sigma_cpu + sigma_mem + sigma_gpu_util)`
-- `R_slo`: optional penalty when wait exceeds threshold (scaled for high priority)
+- Each scheduled job records JCT as `scheduled_time + runtime - creation_time`.
+- JCT is normalized by runtime to get slowdown, so short and long jobs are comparable without tuned constants.
+- The episode objective is the RMS of mean, P95, and P99 slowdown.
+- The step reward is the negative change in that objective, so the cumulative reward is the negative final latency objective.
 
-Defaults:
-
-- `frag_weight=2.0`
-- `balance_weight=0.5`
-- `success_reward=1.0`
-- `fail_penalty=-5.0`
-- `slo_penalty=-2.0`
-- `slo_threshold_ms=30000`
+The older shaped placement reward is still available with `reward_mode=legacy` for ablations, but it is not the default research objective.
 
 ## 4) Phase 5 training support
 
@@ -92,8 +85,8 @@ The script includes:
 
 - `MaskablePPO` with `MlpPolicy` and net `[256, 256]`
 - `VecNormalize(norm_obs=True, norm_reward=True)` for training
-- custom validation callback selecting best checkpoint by validation `GAR` (`allocated/requested`)
-- validation logging for fragmentation, utilization spread (`sigma_cpu`, `sigma_mem`, `sigma_gpu`), and wait time
+- custom validation callback selecting best checkpoint by the validation latency objective
+- validation logging for mean/P95/P99 JCT, mean/P95/P99 slowdown, fragmentation, utilization spread, and wait time
 - early stopping by `--patience-steps`
 - saved artifacts per experiment in `models/phase5/<ablation>/`
   - `best_model.zip` (policy checkpoint)
@@ -119,4 +112,4 @@ Checks include:
 - Episodes are fixed-length, non-overlapping windows.
 - Sub-placement policy defaults to `most_used_first`.
 - Validation in training uses long validation episodes (`--val-episode-len 0` => full validation split).
-- This environment tracks per-episode GAR/success/fragmentation metrics via `info["episode_metrics"]`.
+- This environment tracks per-episode GAR/success/fragmentation plus mean/P95/P99 JCT and slowdown via `info["episode_metrics"]`.

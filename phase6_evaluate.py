@@ -106,6 +106,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--balance-weight", type=float, default=0.5)
     parser.add_argument("--success-reward", type=float, default=1.0)
     parser.add_argument("--fail-penalty", type=float, default=-5.0)
+    parser.add_argument("--reward-mode", type=str, default="latency", choices=["latency", "legacy"])
     parser.add_argument("--slo-penalty", type=float, default=-2.0)
     parser.add_argument("--slo-threshold-ms", type=int, default=30_000)
     parser.add_argument("--priority-multiplier", type=float, default=3.0)
@@ -265,6 +266,7 @@ def create_env(
         frag_weight=args.frag_weight,
         balance_weight=args.balance_weight,
         util_weight=args.util_weight,
+        reward_mode=args.reward_mode,
         success_reward=args.success_reward,
         fail_penalty=args.fail_penalty,
         slo_penalty=args.slo_penalty,
@@ -431,6 +433,8 @@ def _build_step_row(
         "reward_balance": float(info.get("reward_balance", 0.0)),
         "reward_utilization": float(info.get("reward_utilization", 0.0)),
         "reward_slo": float(info.get("reward_slo", 0.0)),
+        "reward_latency_objective": float(info.get("reward_latency_objective", 0.0)),
+        "reward_latency_failure": float(info.get("reward_latency_failure", 0.0)),
         "frag_before": float(info.get("frag_before", 0.0)),
         "frag_after": float(info.get("frag_after", 0.0)),
         "frag_delta": float(info.get("frag_delta", 0.0)),
@@ -441,6 +445,9 @@ def _build_step_row(
         "sigma_mem_util": float(info.get("sigma_mem_util", 0.0)),
         "sigma_gpu_util": float(info.get("sigma_gpu_util", 0.0)),
         "wait_time_ms": float(info.get("wait_time_ms", 0.0)),
+        "job_completion_time_ms": float(info.get("job_completion_time_ms", 0.0)),
+        "job_slowdown": float(info.get("job_slowdown", 0.0)),
+        "latency_objective": float(info.get("latency_objective", 0.0)),
         "current_time": float(info.get("current_time", 0.0)),
         "episode_requested_gpu_milli": float(info.get("episode_requested_gpu_milli", 0.0)),
         "episode_allocated_gpu_milli": allocated,
@@ -463,6 +470,9 @@ def summarize_rows(
     total = len(rows)
     scheduled = int(sum(int(r["scheduled"]) for r in rows))
     waits = [float(r["wait_time_ms"]) for r in rows]
+    jcts = [float(r["job_completion_time_ms"]) for r in rows]
+    slowdowns = [float(r["job_slowdown"]) for r in rows]
+    latency_objectives = [float(r["latency_objective"]) for r in rows]
     sigma_cpu = [float(r["sigma_cpu_util"]) for r in rows]
     sigma_gpu = [float(r["sigma_gpu_util"]) for r in rows]
     frag_series = [float(r["cluster_fragmentation_avg"]) for r in rows]
@@ -494,6 +504,13 @@ def summarize_rows(
         "avg_wait_time_ms": float(mean(waits)) if waits else 0.0,
         "p95_wait_time_ms": _percentile(waits, 95),
         "p99_wait_time_ms": _percentile(waits, 99),
+        "avg_job_completion_time_ms": float(mean(jcts)) if jcts else 0.0,
+        "p95_job_completion_time_ms": _percentile(jcts, 95),
+        "p99_job_completion_time_ms": _percentile(jcts, 99),
+        "avg_job_slowdown": float(mean(slowdowns)) if slowdowns else 0.0,
+        "p95_job_slowdown": _percentile(slowdowns, 95),
+        "p99_job_slowdown": _percentile(slowdowns, 99),
+        "latency_objective": float(episode_metrics.get("latency_objective", latency_objectives[-1] if latency_objectives else 0.0)),
         "avg_sigma_cpu_util": float(mean(sigma_cpu)) if sigma_cpu else 0.0,
         "avg_sigma_gpu_util": float(mean(sigma_gpu)) if sigma_gpu else 0.0,
         "avg_fragmentation": float(mean(frag_series)) if frag_series else 0.0,
@@ -1005,6 +1022,7 @@ def main() -> None:
             "seed": int(args.seed),
             "sub_placement_policy": args.sub_placement_policy,
             "util_weight": float(args.util_weight),
+            "reward_mode": args.reward_mode,
             "gpu_only_pods": bool(args.gpu_only_pods),
             "pod_replication_factor": int(args.pod_replication_factor),
             "scenarios": [s.name for s in scenarios],
@@ -1102,6 +1120,10 @@ def main() -> None:
                 "success_rate_mean": float(payload["mean"].get("success_rate", 0.0)),
                 "avg_sigma_gpu_util_mean": float(payload["mean"].get("avg_sigma_gpu_util", 0.0)),
                 "avg_wait_time_ms_mean": float(payload["mean"].get("avg_wait_time_ms", 0.0)),
+                "avg_job_completion_time_ms_mean": float(payload["mean"].get("avg_job_completion_time_ms", 0.0)),
+                "p95_job_completion_time_ms_mean": float(payload["mean"].get("p95_job_completion_time_ms", 0.0)),
+                "p99_job_completion_time_ms_mean": float(payload["mean"].get("p99_job_completion_time_ms", 0.0)),
+                "latency_objective_mean": float(payload["mean"].get("latency_objective", 0.0)),
                 "final_full_free_gpu_count_mean": float(payload["mean"].get("final_full_free_gpu_count", 0.0)),
                 "infeasible_action_count_mean": float(payload["mean"].get("infeasible_action_count", 0.0)),
             }

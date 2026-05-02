@@ -74,6 +74,7 @@ class EnvParams:
     global_frag_weight: float
     free_gpu_weight: float
     free_gpu_penalty_mode: str
+    reward_mode: str
     success_reward: float
     fail_penalty: float
     slo_penalty: float
@@ -146,7 +147,7 @@ class NodeAttentionExtractor(BaseFeaturesExtractor):
         return self.combined(combined)
 
 
-class ValidationGARCallback(BaseCallback):
+class ValidationLatencyCallback(BaseCallback):
     def __init__(
         self,
         *,
@@ -165,6 +166,7 @@ class ValidationGARCallback(BaseCallback):
         self.best_model_dir.mkdir(parents=True, exist_ok=True)
         self.patience_steps = int(max(0, patience_steps))
         self.best_gar = float("-inf")
+        self.best_latency_objective = float("inf")
         self.best_step = 0
 
     def _evaluate(self) -> Dict[str, float]:
@@ -178,6 +180,13 @@ class ValidationGARCallback(BaseCallback):
         sigma_mem_vals: List[float] = []
         sigma_gpu_vals: List[float] = []
         wait_time_vals: List[float] = []
+        mean_jct_vals: List[float] = []
+        p95_jct_vals: List[float] = []
+        p99_jct_vals: List[float] = []
+        latency_objective_vals: List[float] = []
+        mean_slowdown_vals: List[float] = []
+        p95_slowdown_vals: List[float] = []
+        p99_slowdown_vals: List[float] = []
         reward_vals: List[float] = []
         free_gpu_vals: List[float] = []
 
@@ -209,6 +218,13 @@ class ValidationGARCallback(BaseCallback):
                 sigma_mem_vals.append(float(metrics.get("sigma_mem_util", 0.0)))
                 sigma_gpu_vals.append(float(metrics.get("sigma_gpu_util", 0.0)))
                 wait_time_vals.append(float(metrics.get("mean_wait_time_ms", 0.0)))
+                mean_jct_vals.append(float(metrics.get("mean_job_completion_time_ms", 0.0)))
+                p95_jct_vals.append(float(metrics.get("p95_job_completion_time_ms", 0.0)))
+                p99_jct_vals.append(float(metrics.get("p99_job_completion_time_ms", 0.0)))
+                latency_objective_vals.append(float(metrics.get("latency_objective", 0.0)))
+                mean_slowdown_vals.append(float(metrics.get("mean_job_slowdown", 0.0)))
+                p95_slowdown_vals.append(float(metrics.get("p95_job_slowdown", 0.0)))
+                p99_slowdown_vals.append(float(metrics.get("p99_job_slowdown", 0.0)))
                 reward_vals.append(float(metrics.get("episode_reward", 0.0)))
                 free_gpu_vals.append(float(metrics.get("full_free_gpu_count", 0.0)))
             episodes_done += 1
@@ -227,6 +243,13 @@ class ValidationGARCallback(BaseCallback):
             "sigma_mem_util": _mean(sigma_mem_vals),
             "sigma_gpu_util": _mean(sigma_gpu_vals),
             "mean_wait_time_ms": _mean(wait_time_vals),
+            "mean_job_completion_time_ms": _mean(mean_jct_vals),
+            "p95_job_completion_time_ms": _mean(p95_jct_vals),
+            "p99_job_completion_time_ms": _mean(p99_jct_vals),
+            "latency_objective": _mean(latency_objective_vals),
+            "mean_job_slowdown": _mean(mean_slowdown_vals),
+            "p95_job_slowdown": _mean(p95_slowdown_vals),
+            "p99_job_slowdown": _mean(p99_slowdown_vals),
             "episode_reward": _mean(reward_vals),
             "full_free_gpu_count": _mean(free_gpu_vals),
         }
@@ -251,12 +274,20 @@ class ValidationGARCallback(BaseCallback):
         self.logger.record("validation/sigma_gpu_util", metrics["sigma_gpu_util"])
         self.logger.record("validation/full_free_gpu_count", metrics["full_free_gpu_count"])
         self.logger.record("validation/mean_wait_time_ms", metrics["mean_wait_time_ms"])
+        self.logger.record("validation/mean_job_completion_time_ms", metrics["mean_job_completion_time_ms"])
+        self.logger.record("validation/p95_job_completion_time_ms", metrics["p95_job_completion_time_ms"])
+        self.logger.record("validation/p99_job_completion_time_ms", metrics["p99_job_completion_time_ms"])
+        self.logger.record("validation/latency_objective", metrics["latency_objective"])
+        self.logger.record("validation/mean_job_slowdown", metrics["mean_job_slowdown"])
+        self.logger.record("validation/p95_job_slowdown", metrics["p95_job_slowdown"])
+        self.logger.record("validation/p99_job_slowdown", metrics["p99_job_slowdown"])
         self.logger.record("validation/episode_reward", metrics["episode_reward"])
 
         current_step = int(self.num_timesteps)
-        improved = metrics["allocation_ratio_capacity"] > self.best_gar
+        improved = metrics["latency_objective"] < self.best_latency_objective
         if improved:
             self.best_gar = metrics["allocation_ratio_capacity"]
+            self.best_latency_objective = metrics["latency_objective"]
             self.best_step = current_step
             self.model.save(str(self.best_model_dir / "best_model"))
             if isinstance(self.training_env, VecNormalize):
@@ -265,6 +296,7 @@ class ValidationGARCallback(BaseCallback):
 
             payload = {
                 "best_gar": self.best_gar,
+                "best_latency_objective": self.best_latency_objective,
                 "best_step": self.best_step,
                 "metrics": metrics,
             }
@@ -274,7 +306,7 @@ class ValidationGARCallback(BaseCallback):
         if self.patience_steps > 0 and (current_step - self.best_step) >= self.patience_steps:
             if self.verbose > 0:
                 print(
-                    f"Early stopping at step {current_step}: no allocation_ratio_capacity improvement in {self.patience_steps} steps"
+                    f"Early stopping at step {current_step}: no latency objective improvement in {self.patience_steps} steps"
                 )
             return False
         return True
@@ -299,6 +331,8 @@ class SchedulingMetricsCallback(BaseCallback):
             self.logger.record("custom/reward_free_gpu", float(info.get("reward_free_gpu", 0.0)))
             self.logger.record("custom/reward_utilization", float(info.get("reward_utilization", 0.0)))
             self.logger.record("custom/reward_slo", float(info.get("reward_slo", 0.0)))
+            self.logger.record("custom/reward_latency_objective", float(info.get("reward_latency_objective", 0.0)))
+            self.logger.record("custom/reward_latency_failure", float(info.get("reward_latency_failure", 0.0)))
             self.logger.record("custom/frag_delta", float(info.get("frag_delta", 0.0)))
             self.logger.record("custom/cluster_fragmentation_avg", float(info.get("cluster_fragmentation_avg", 0.0)))
             self.logger.record("custom/cluster_full_free_gpu_count", float(info.get("cluster_full_free_gpu_count", 0.0)))
@@ -306,6 +340,9 @@ class SchedulingMetricsCallback(BaseCallback):
             self.logger.record("custom/sigma_mem_util", float(info.get("sigma_mem_util", 0.0)))
             self.logger.record("custom/sigma_gpu_util", float(info.get("sigma_gpu_util", 0.0)))
             self.logger.record("custom/wait_time_ms", float(info.get("wait_time_ms", 0.0)))
+            self.logger.record("custom/job_completion_time_ms", float(info.get("job_completion_time_ms", 0.0)))
+            self.logger.record("custom/job_slowdown", float(info.get("job_slowdown", 0.0)))
+            self.logger.record("custom/latency_objective", float(info.get("latency_objective", 0.0)))
             self.logger.record("custom/scheduled", 1.0 if bool(info.get("scheduled", False)) else 0.0)
 
             episode_metrics = info.get("episode_metrics")
@@ -322,6 +359,13 @@ class SchedulingMetricsCallback(BaseCallback):
                 self.logger.record("episode/sigma_mem_util", float(episode_metrics.get("sigma_mem_util", 0.0)))
                 self.logger.record("episode/sigma_gpu_util", float(episode_metrics.get("sigma_gpu_util", 0.0)))
                 self.logger.record("episode/mean_wait_time_ms", float(episode_metrics.get("mean_wait_time_ms", 0.0)))
+                self.logger.record("episode/mean_job_completion_time_ms", float(episode_metrics.get("mean_job_completion_time_ms", 0.0)))
+                self.logger.record("episode/p95_job_completion_time_ms", float(episode_metrics.get("p95_job_completion_time_ms", 0.0)))
+                self.logger.record("episode/p99_job_completion_time_ms", float(episode_metrics.get("p99_job_completion_time_ms", 0.0)))
+                self.logger.record("episode/latency_objective", float(episode_metrics.get("latency_objective", 0.0)))
+                self.logger.record("episode/mean_job_slowdown", float(episode_metrics.get("mean_job_slowdown", 0.0)))
+                self.logger.record("episode/p95_job_slowdown", float(episode_metrics.get("p95_job_slowdown", 0.0)))
+                self.logger.record("episode/p99_job_slowdown", float(episode_metrics.get("p99_job_slowdown", 0.0)))
                 self.logger.record("episode/reward", float(episode_metrics.get("episode_reward", 0.0)))
                 self.logger.record("episode/count", float(self.episode_counter))
         return True
@@ -353,6 +397,7 @@ def make_env_factory(params: EnvParams) -> Callable[[], GPUSchedulingEnv]:
             global_frag_weight=params.global_frag_weight,
             free_gpu_weight=params.free_gpu_weight,
             free_gpu_penalty_mode=params.free_gpu_penalty_mode,
+            reward_mode=params.reward_mode,
             success_reward=params.success_reward,
             fail_penalty=params.fail_penalty,
             slo_penalty=params.slo_penalty,
@@ -475,6 +520,7 @@ def _build_bc_dataset(
         global_frag_weight=reward_cfg["global_frag_weight"],
         free_gpu_weight=reward_cfg["free_gpu_weight"],
         free_gpu_penalty_mode=reward_cfg["free_gpu_penalty_mode"],
+        reward_mode=str(reward_cfg.get("reward_mode", args.reward_mode)),
         success_reward=reward_cfg["success_reward"],
         fail_penalty=reward_cfg["fail_penalty"],
         slo_penalty=reward_cfg["slo_penalty"],
@@ -642,6 +688,13 @@ def parse_args() -> argparse.Namespace:
         choices=["terminal", "step"],
         help="apply free-GPU penalty at episode end or every step",
     )
+    parser.add_argument(
+        "--reward-mode",
+        type=str,
+        default="latency",
+        choices=["latency", "legacy"],
+        help="latency optimizes a weight-free JCT/P95/P99 objective; legacy uses shaped placement rewards",
+    )
     parser.add_argument("--success-reward", type=float, default=1.0)
     parser.add_argument("--fail-penalty", type=float, default=-5.0)
     parser.add_argument("--slo-penalty", type=float, default=-2.0)
@@ -757,6 +810,7 @@ def build_ablation_rewards(base_args: argparse.Namespace) -> Dict[str, Dict[str,
             "global_frag_weight": 0.0,
             "free_gpu_weight": 0.0,
             "free_gpu_penalty_mode": base_args.free_gpu_penalty_mode,
+            "reward_mode": base_args.reward_mode,
             "slo_penalty": 0.0,
         },
         "frag_only": {
@@ -768,6 +822,7 @@ def build_ablation_rewards(base_args: argparse.Namespace) -> Dict[str, Dict[str,
             "global_frag_weight": base_args.global_frag_weight,
             "free_gpu_weight": base_args.free_gpu_weight,
             "free_gpu_penalty_mode": base_args.free_gpu_penalty_mode,
+            "reward_mode": base_args.reward_mode,
             "slo_penalty": 0.0,
         },
         "full": {
@@ -779,6 +834,7 @@ def build_ablation_rewards(base_args: argparse.Namespace) -> Dict[str, Dict[str,
             "global_frag_weight": base_args.global_frag_weight,
             "free_gpu_weight": base_args.free_gpu_weight,
             "free_gpu_penalty_mode": base_args.free_gpu_penalty_mode,
+            "reward_mode": base_args.reward_mode,
             "slo_penalty": base_args.slo_penalty,
         },
     }
@@ -833,6 +889,7 @@ def _build_train_vec_env(
                     global_frag_weight=float(reward_cfg["global_frag_weight"]),
                     free_gpu_weight=float(reward_cfg["free_gpu_weight"]),
                     free_gpu_penalty_mode=str(reward_cfg["free_gpu_penalty_mode"]),
+                    reward_mode=str(reward_cfg.get("reward_mode", args.reward_mode)),
                     success_reward=float(reward_cfg["success_reward"]),
                     fail_penalty=float(reward_cfg["fail_penalty"]),
                     slo_penalty=float(reward_cfg["slo_penalty"]),
@@ -888,6 +945,7 @@ def _build_eval_vec_env(
             global_frag_weight=float(reward_cfg["global_frag_weight"]),
             free_gpu_weight=float(reward_cfg["free_gpu_weight"]),
             free_gpu_penalty_mode=str(reward_cfg["free_gpu_penalty_mode"]),
+            reward_mode=str(reward_cfg.get("reward_mode", args.reward_mode)),
             success_reward=float(reward_cfg["success_reward"]),
             fail_penalty=float(reward_cfg["fail_penalty"]),
             slo_penalty=float(reward_cfg["slo_penalty"]),
@@ -990,7 +1048,7 @@ def train_one_experiment(
         )
 
     metrics_callback = SchedulingMetricsCallback(verbose=0)
-    validation_callback = ValidationGARCallback(
+    validation_callback = ValidationLatencyCallback(
         eval_env=vec_eval,
         eval_freq=max(1, args.eval_freq // max(1, args.n_envs)),
         n_eval_episodes=args.eval_episodes,
@@ -1049,6 +1107,7 @@ def train_one_experiment(
         "bc_warmstart": bool(args.bc_warmstart),
         "device": device,
         "best_gar": validation_callback.best_gar,
+        "best_latency_objective": validation_callback.best_latency_objective,
         "best_step": validation_callback.best_step,
     }
 
