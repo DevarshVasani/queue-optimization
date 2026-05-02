@@ -262,6 +262,11 @@ class ValidationLatencyCallback(BaseCallback):
             self.eval_env.obs_rms = self.training_env.obs_rms
 
         metrics = self._evaluate()
+        print(
+            f"validation step={current_step} reward={metrics['episode_reward']:.6f} "
+            f"latency_objective={metrics['latency_objective']:.6f}",
+            flush=True,
+        )
         self.logger.record("validation/gar", metrics["gar"])
         self.logger.record("validation/gar_capacity", metrics["allocation_ratio_capacity"])
         self.logger.record("validation/allocation_ratio_capacity", metrics["allocation_ratio_capacity"])
@@ -348,6 +353,12 @@ class SchedulingMetricsCallback(BaseCallback):
             episode_metrics = info.get("episode_metrics")
             if isinstance(episode_metrics, dict):
                 self.episode_counter += 1
+                print(
+                    f"episode {self.episode_counter} reward={float(episode_metrics.get('episode_reward', 0.0)):.6f} "
+                    f"latency_objective={float(episode_metrics.get('latency_objective', 0.0)):.6f} "
+                    f"gar={float(episode_metrics.get('gar', 0.0)):.6f}",
+                    flush=True,
+                )
                 self.logger.record("episode/gar", float(episode_metrics.get("gar", 0.0)))
                 self.logger.record("episode/gar_requested", float(episode_metrics.get("gar_requested", 0.0)))
                 self.logger.record("episode/allocation_ratio_capacity", float(episode_metrics.get("allocation_ratio_capacity", 0.0)))
