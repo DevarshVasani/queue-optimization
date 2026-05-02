@@ -1,0 +1,26 @@
+{
+  "baseline_value": 0.676588380601671,
+  "metric_tag": "validation/gar",
+  "run_count": 15,
+  "crossing_steps": {
+    "frag_only/MaskablePPO_1": 32768,
+    "frag_only/MaskablePPO_2": 16384,
+    "frag_only/MaskablePPO_3": 32768,
+    "full/MaskablePPO_1": 16384,
+    "full/MaskablePPO_11": 65536,
+    "full/MaskablePPO_2": 32768,
+    "full/MaskablePPO_3": null,
+    "full/MaskablePPO_4": null,
+    "full/MaskablePPO_5": null,
+    "full/MaskablePPO_6": null,
+    "full/MaskablePPO_7": null,
+    "full/MaskablePPO_8": null,
+    "full/MaskablePPO_9": null,
+    "success_only/MaskablePPO_2": 32768,
+    "success_only/MaskablePPO_3": 32768
+  },
+  "mean_crossing_step": 32768.0,
+  "median_crossing_step": 32768.0,
+  "final_mean": 0.23494626681009934,
+  "final_std": 0.3322641969517702
+}

@@ -1,0 +1,378 @@
+{
+  "episode_reward": {
+    "frag_only/MaskablePPO_1": {
+      "final_step": 114688.0,
+      "final_value": 487.6829833984375,
+      "max_value": 487.6829833984375
+    },
+    "frag_only/MaskablePPO_2": {
+      "final_step": 16384.0,
+      "final_value": 487.5052185058594,
+      "max_value": 487.5052185058594
+    },
+    "frag_only/MaskablePPO_3": {
+      "final_step": 98304.0,
+      "final_value": -3747.8974609375,
+      "max_value": -3739.813720703125
+    },
+    "full/MaskablePPO_1": {
+      "final_step": 16384.0,
+      "final_value": 454.45733642578125,
+      "max_value": 454.45733642578125
+    },
+    "full/MaskablePPO_11": {
+      "final_step": 344064.0,
+      "final_value": -3909906.25,
+      "max_value": -3909906.25
+    },
+    "full/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 455.1446533203125,
+      "max_value": 455.1446533203125
+    },
+    "full/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": -770.5709838867188,
+      "max_value": -770.5709838867188
+    },
+    "full/MaskablePPO_4": {
+      "final_step": 114688.0,
+      "final_value": -770.5709838867188,
+      "max_value": -770.5709838867188
+    },
+    "full/MaskablePPO_5": {
+      "final_step": 114688.0,
+      "final_value": -980.74560546875,
+      "max_value": -838.7011108398438
+    },
+    "full/MaskablePPO_6": {
+      "final_step": 212992.0,
+      "final_value": -23040.0,
+      "max_value": -23040.0
+    },
+    "full/MaskablePPO_7": {
+      "final_step": 212992.0,
+      "final_value": -25000.0,
+      "max_value": -25000.0
+    },
+    "full/MaskablePPO_8": {
+      "final_step": 311296.0,
+      "final_value": -25000.0,
+      "max_value": -25000.0
+    },
+    "full/MaskablePPO_9": {
+      "final_step": 311296.0,
+      "final_value": -25000.0,
+      "max_value": -25000.0
+    },
+    "success_only/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 500.0,
+      "max_value": 500.0
+    },
+    "success_only/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": 500.0,
+      "max_value": 500.0
+    }
+  },
+  "validation_gar": {
+    "frag_only/MaskablePPO_1": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "frag_only/MaskablePPO_2": {
+      "final_step": 16384.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "frag_only/MaskablePPO_3": {
+      "final_step": 98304.0,
+      "final_value": 1.0013459920883179,
+      "max_value": 1.0013459920883179
+    },
+    "full/MaskablePPO_1": {
+      "final_step": 16384.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "full/MaskablePPO_11": {
+      "final_step": 311296.0,
+      "final_value": 0.7050909996032715,
+      "max_value": 0.7078262567520142
+    },
+    "full/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "full/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": 0.011820237152278423,
+      "max_value": 0.011820237152278423
+    },
+    "full/MaskablePPO_4": {
+      "final_step": 114688.0,
+      "final_value": 0.011820237152278423,
+      "max_value": 0.011820237152278423
+    },
+    "full/MaskablePPO_5": {
+      "final_step": 114688.0,
+      "final_value": 0.46856486797332764,
+      "max_value": 0.46989351511001587
+    },
+    "full/MaskablePPO_6": {
+      "final_step": 212992.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_7": {
+      "final_step": 212992.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_8": {
+      "final_step": 311296.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_9": {
+      "final_step": 311296.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "success_only/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "success_only/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    }
+  },
+  "validation_success_rate": {
+    "frag_only/MaskablePPO_1": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "frag_only/MaskablePPO_2": {
+      "final_step": 16384.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "frag_only/MaskablePPO_3": {
+      "final_step": 98304.0,
+      "final_value": 0.3707037568092346,
+      "max_value": 0.3707037568092346
+    },
+    "full/MaskablePPO_1": {
+      "final_step": 16384.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "full/MaskablePPO_11": {
+      "final_step": 311296.0,
+      "final_value": 0.3966861665248871,
+      "max_value": 0.39790448546409607
+    },
+    "full/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "full/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "full/MaskablePPO_4": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "full/MaskablePPO_5": {
+      "final_step": 114688.0,
+      "final_value": 0.7471358180046082,
+      "max_value": 0.7520458102226257
+    },
+    "full/MaskablePPO_6": {
+      "final_step": 212992.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_7": {
+      "final_step": 212992.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_8": {
+      "final_step": 311296.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_9": {
+      "final_step": 311296.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "success_only/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    },
+    "success_only/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": 1.0,
+      "max_value": 1.0
+    }
+  },
+  "validation_gar_delta_1k": {
+    "frag_only/MaskablePPO_1": {
+      "final_step": 114688.0,
+      "final_value": 0.0,
+      "max_value": 1.6940658945086007e-18
+    },
+    "frag_only/MaskablePPO_2": {
+      "final_step": 0.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "frag_only/MaskablePPO_3": {
+      "final_step": 98304.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_1": {
+      "final_step": 0.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_11": {
+      "final_step": 311296.0,
+      "final_value": 2.680947848907023e-06,
+      "max_value": 2.680947848907023e-06
+    },
+    "full/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 0.0,
+      "max_value": 1.6940658945086007e-18
+    },
+    "full/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": 0.0,
+      "max_value": 5.293955920339377e-20
+    },
+    "full/MaskablePPO_4": {
+      "final_step": 114688.0,
+      "final_value": 0.0,
+      "max_value": 5.293955920339377e-20
+    },
+    "full/MaskablePPO_5": {
+      "final_step": 114688.0,
+      "final_value": 1.5792466001571573e-06,
+      "max_value": 1.5792466001571573e-06
+    },
+    "full/MaskablePPO_6": {
+      "final_step": 212992.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_7": {
+      "final_step": 212992.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_8": {
+      "final_step": 311296.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "full/MaskablePPO_9": {
+      "final_step": 311296.0,
+      "final_value": 0.0,
+      "max_value": 0.0
+    },
+    "success_only/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": 0.0,
+      "max_value": 1.6940658945086007e-18
+    },
+    "success_only/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": 0.0,
+      "max_value": 1.6940658945086007e-18
+    }
+  },
+  "policy_entropy": {
+    "frag_only/MaskablePPO_1": {
+      "final_step": 114688.0,
+      "final_value": -4.558713436126709,
+      "max_value": -4.558713436126709
+    },
+    "frag_only/MaskablePPO_3": {
+      "final_step": 98304.0,
+      "final_value": -4.819306373596191,
+      "max_value": -4.819306373596191
+    },
+    "full/MaskablePPO_11": {
+      "final_step": 344064.0,
+      "final_value": -3.064943790435791,
+      "max_value": -2.9964280128479004
+    },
+    "full/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": -4.576043128967285,
+      "max_value": -4.576043128967285
+    },
+    "full/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": -4.6793036460876465,
+      "max_value": -4.6793036460876465
+    },
+    "full/MaskablePPO_4": {
+      "final_step": 114688.0,
+      "final_value": -4.6793036460876465,
+      "max_value": -4.6793036460876465
+    },
+    "full/MaskablePPO_5": {
+      "final_step": 114688.0,
+      "final_value": -4.629338264465332,
+      "max_value": -4.6278204917907715
+    },
+    "full/MaskablePPO_6": {
+      "final_step": 212992.0,
+      "final_value": -2.6562068462371826,
+      "max_value": -2.6552698612213135
+    },
+    "full/MaskablePPO_7": {
+      "final_step": 212992.0,
+      "final_value": -2.667597770690918,
+      "max_value": -2.667597770690918
+    },
+    "full/MaskablePPO_8": {
+      "final_step": 311296.0,
+      "final_value": -2.6375648975372314,
+      "max_value": -2.6375648975372314
+    },
+    "full/MaskablePPO_9": {
+      "final_step": 311296.0,
+      "final_value": -2.6375648975372314,
+      "max_value": -2.6375648975372314
+    },
+    "success_only/MaskablePPO_2": {
+      "final_step": 114688.0,
+      "final_value": -4.5694732666015625,
+      "max_value": -4.5694732666015625
+    },
+    "success_only/MaskablePPO_3": {
+      "final_step": 114688.0,
+      "final_value": -4.5694732666015625,
+      "max_value": -4.5694732666015625
+    }
+  },
+  "validation_latency_objective": {}
+}
